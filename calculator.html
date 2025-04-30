@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Scientific Calculator</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --operator: #3498db;
+            --function: #9b59b6;
+            --equals: #2ecc71;
+            --clear: #e74c3c;
+            --text: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .calculator {
+            width: 400px;
+            background-color: var(--primary);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .display {
+            padding: 20px;
+            text-align: right;
+            background-color: var(--secondary);
+            color: var(--text);
+            font-size: 1.8em;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .previous-operand {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            min-height: 20px;
+            overflow: hidden;
+        }
+
+        .current-operand {
+            font-size: 1.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+        }
+
+        button {
+            border: none;
+            outline: none;
+            padding: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: var(--secondary);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            filter: brightness(1.2);
+        }
+
+        button:active {
+            filter: brightness(0.9);
+        }
+
+        .operator {
+            background-color: var(--operator);
+        }
+
+        .function {
+            background-color: var(--function);
+        }
+
+        .equals {
+            background-color: var(--equals);
+        }
+
+        .clear {
+            background-color: var(--clear);
+        }
+
+        .span-2 {
+            grid-column: span 2;
+        }
+
+        .span-3 {
+            grid-column: span 3;
+        }
+
+        .secondary-fn {
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operand" id="previous-operand"></div>
+            <div class="current-operand" id="current-operand">0</div>
+        </div>
+        <div class="buttons">
+            <!-- Row 1 -->
+            <button class="clear" onclick="clearAll()">AC</button>
+            <button class="function" onclick="deleteLastChar()">DEL</button>
+            <button class="function" onclick="appendOperation('%')">%</button>
+            <button class="operator" onclick="appendOperation('/')">/</button>
+            <button class="function" onclick="appendOperation('^')">x^y</button>
+
+            <!-- Row 2 -->
+            <button class="function" onclick="appendOperation('sin(')">sin</button>
+            <button class="function" onclick="appendOperation('cos(')">cos</button>
+            <button class="function" onclick="appendOperation('tan(')">tan</button>
+            <button class="operator" onclick="appendOperation('*')">×</button>
+            <button class="function" onclick="appendOperation('10^')">10^x</button>
+
+            <!-- Row 3 -->
+            <button class="function" onclick="appendOperation('asin(')">sin⁻¹</button>
+            <button class="function" onclick="appendOperation('acos(')">cos⁻¹</button>
+            <button class="function" onclick="appendOperation('atan(')">tan⁻¹</button>
+            <button class="operator" onclick="appendOperation('-')">-</button>
+            <button class="function" onclick="appendOperation('e^')">e^x</button>
+
+            <!-- Row 4 -->
+            <button class="function" onclick="appendOperation('sqrt(')">√</button>
+            <button class="function" onclick="appendOperation('cbrt(')">∛</button>
+            <button class="function" onclick="appendOperation('log(')">log₁₀</button>
+            <button class="function" onclick="appendOperation('ln(')">ln</button>
+            <button class="operator" onclick="appendOperation('+')">+</button>
+
+            <!-- Row 5 -->
+            <button class="function" onclick="appendOperation('(')">(</button>
+            <button class="function" onclick="appendOperation(')')">)</button>
+            <button class="function" onclick="factorial()">x!</button>
+            <button class="function" onclick="appendOperation('π')">π</button>
+            <button class="equals" onclick="calculate()">=</button>
+
+            <!-- Row 6 -->
+            <button class="function" onclick="appendOperation('abs(')">|x|</button>
+            <button class="function" onclick="appendOperation('pow(2,')">2^x</button>
+            <button class="function" onclick="appendOperation('pow(10,')">10^x</button>
+            <button class="function" onclick="appendOperation('Math.E')">e</button>
+            <button class="function" onclick="appendOperation('1/')">1/x</button>
+
+            <!-- Row 7 -->
+            <button class="function" onclick="appendOperation('sinh(')">sinh</button>
+            <button class="function" onclick="appendOperation('cosh(')">cosh</button>
+            <button class="function" onclick="appendOperation('tanh(')">tanh</button>
+            <button class="function" onclick="appendOperation('rand(')">RAND</button>
+            <button class="function" onclick="appendOperation('deg2rad(')">DEG→RAD</button>
+
+            <!-- Row 8 -->
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="function" onclick="appendOperation('round(')">ROUND</button>
+            <button class="function" onclick="appendOperation('floor(')">FLOOR</button>
+
+            <!-- Row 9 -->
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="function" onclick="appendOperation('ceil(')">CEIL</button>
+            <button class="function" onclick="appendOperation('sign(')">SIGN</button>
+
+            <!-- Row 10 -->
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="function" onclick="appendOperation('exp(')">EXP</button>
+            <button class="function" onclick="appendOperation('Math.PI')">π</button>
+
+            <!-- Row 11 -->
+            <button class="span-2" onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button class="function" onclick="appendOperation('toFixed(2)')">FIX 2</button>
+            <button class="function" onclick="appendOperation('toExponential(2)')">SCI</button>
+        </div>
+    </div>
+
+    <script>
+        let currentOperand = '0';
+        let previousOperand = '';
+        let resetScreen = false;
+
+        const currentOperandElement = document.getElementById('current-operand');
+        const previousOperandElement = document.getElementById('previous-operand');
+
+        function appendNumber(number) {
+            if (currentOperand === '0' || resetScreen) {
+                currentOperand = number;
+                resetScreen = false;
+            } else {
+                currentOperand += number;
+            }
+            updateDisplay();
+        }
+
+        function appendOperation(op) {
+            if (resetScreen) {
+                previousOperand = currentOperand;
+                resetScreen = false;
+            }
+            
+            // Handle special constants and functions
+            if (op === 'π') {
+                currentOperand = Math.PI.toString();
+            } else if (op === 'e') {
+                currentOperand = Math.E.toString();
+            } else if (op === '10^') {
+                currentOperand = '10^';
+            } else if (op === 'e^') {
+                currentOperand = 'Math.exp(';
+            } else if (op.endsWith('(')) {
+                currentOperand += op;
+            } else {
+                currentOperand += op;
+            }
+            updateDisplay();
+        }
+
+        function clearAll() {
+            currentOperand = '0';
+            previousOperand = '';
+            updateDisplay();
+        }
+
+        function deleteLastChar() {
+            if (currentOperand.length === 1) {
+                currentOperand = '0';
+            } else {
+                currentOperand = currentOperand.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        function factorial() {
+            let num = parseFloat(currentOperand);
+            if (num < 0 || !Number.isInteger(num)) {
+                currentOperand = 'Error';
+                updateDisplay();
+                return;
+            }
+            let result = 1;
+            for (let i = 2; i <= num; i++) {
+                result *= i;
+            }
+            currentOperand = result.toString();
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                // Replace special constants and functions
+                let expression = currentOperand
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/e/g, 'Math.E')
+                    .replace(/sin\(/g, 'Math.sin(')
+                    .replace(/cos\(/g, 'Math.cos(')
+                    .replace(/tan\(/g, 'Math.tan(')
+                    .replace(/asin\(/g, 'Math.asin(')
+                    .replace(/acos\(/g, 'Math.acos(')
+                    .replace(/atan\(/g, 'Math.atan(')
+                    .replace(/sqrt\(/g, 'Math.sqrt(')
+                    .replace(/cbrt\(/g, 'Math.cbrt(')
+                    .replace(/log\(/g, 'Math.log10(')
+                    .replace(/ln\(/g, 'Math.log(')
+                    .replace(/sinh\(/g, 'Math.sinh(')
+                    .replace(/cosh\(/g, 'Math.cosh(')
+                    .replace(/tanh\(/g, 'Math.tanh(')
+                    .replace(/abs\(/g, 'Math.abs(')
+                    .replace(/pow\(2,/g, 'Math.pow(2,')
+                    .replace(/pow\(10,/g, 'Math.pow(10,')
+                    .replace(/10\^/g, 'Math.pow(10,')
+                    .replace(/\^/g, '**')
+                    .replace(/1\//g, '1/')
+                    .replace(/deg2rad\(/g, '(Math.PI/180)*')
+                    .replace(/rand\(/g, 'Math.random()*')
+                    .replace(/round\(/g, 'Math.round(')
+                    .replace(/floor\(/g, 'Math.floor(')
+                    .replace(/ceil\(/g, 'Math.ceil(')
+                    .replace(/sign\(/g, 'Math.sign(')
+                    .replace(/exp\(/g, 'Math.exp(');
+
+                // Evaluate the expression
+                let result = eval(expression);
+                
+                // Handle very large/small numbers
+                if (Math.abs(result) > 1e12 || (Math.abs(result) < 1e-6 && result !== 0)) {
+                    currentOperand = result.toExponential(8);
+                } else {
+                    currentOperand = result.toString();
+                }
+                
+                previousOperand = currentOperand;
+                resetScreen = true;
+                updateDisplay();
+            } catch (error) {
+                currentOperand = 'Error';
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            currentOperandElement.textContent = currentOperand;
+            previousOperandElement.textContent = previousOperand;
+        }
+    </script>
+</body>
+</html>
